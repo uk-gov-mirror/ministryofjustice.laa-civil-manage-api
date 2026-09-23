@@ -116,8 +116,9 @@ requests require a valid Entra ID token in the `Authorization` header.
 
 ### Prior authorities
 
-The lifecycle is: create a draft -> update the draft -> upload supporting documents -> submit. `GET`/`PUT`/`POST .../submit`/
-`POST .../documents` all act on the `priorAuthorityId` returned when the draft was created.
+The lifecycle is: create a draft -> update the draft -> upload/categorise/delete supporting documents -> submit.
+`GET`/`PUT`/`POST .../submit`/`POST .../documents`/`PATCH .../documents/{documentId}`/`DELETE .../documents/{documentId}`
+all act on the `priorAuthorityId` returned when the draft was created.
 
 Because a prior-authority request can vary significantly based on its type, the payload relies on specific nested
 objects (`expertDetails`, `counselDetails` or `disbursementDetails`) corresponding to the `priorAuthorityType`. Only
@@ -227,6 +228,31 @@ curl -i -X POST http://localhost:8080/prior-authorities/c3b07e24-d92b-410a-9d95-
 ```
 
 Returns `200` with `{"documentId": "...", "fileName": "...", "size": ..., "uploadedAt": "..."}`.
+
+#### Categorise an uploaded document
+
+Assigns a document type to a previously uploaded document.
+
+```bash
+curl -i -X PATCH http://localhost:8080/prior-authorities/c3b07e24-d92b-410a-9d95-88f117a12b43/documents/7c2a1e10-1234-4a1b-9abc-1234567890ab \
+  -H "Authorization: Bearer <token>" \
+  -H 'Content-Type: application/json' \
+  -d '{ "documentType": "GATEWAY_EVIDENCE" }'
+```
+
+Returns `200` with `{"documentId": "...", "updatedAt": "..."}`, or `404` if the prior authority or document doesn't
+exist.
+
+#### Delete an uploaded document
+
+Removes a supporting evidence document from a prior-authority draft.
+
+```bash
+curl -i -X DELETE http://localhost:8080/prior-authorities/c3b07e24-d92b-410a-9d95-88f117a12b43/documents/7c2a1e10-1234-4a1b-9abc-1234567890ab \
+  -H "Authorization: Bearer <token>"
+```
+
+Returns `204 No Content`, or `404` if the prior authority or document doesn't exist.
 
 #### Submit
 

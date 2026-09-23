@@ -237,6 +237,44 @@
       }
     },
     "/prior-authorities/{priorAuthorityId}/documents/{documentId}": {
+      "delete": {
+        "tags": [
+          "Prior Authority"
+        ],
+        "summary": "Delete an uploaded document",
+        "description": "Removes a supporting evidence document from a prior-authority draft.",
+        "operationId": "deleteDocument",
+        "parameters": [
+          {
+            "name": "priorAuthorityId",
+            "in": "path",
+            "description": "ID of the prior authority.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "description": "ID of the document to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Document deleted from prior authority draft."
+          },
+          "404": {
+            "description": "Prior authority or document not found."
+          }
+        }
+      },
       "patch": {
         "tags": [
           "Prior Authority"

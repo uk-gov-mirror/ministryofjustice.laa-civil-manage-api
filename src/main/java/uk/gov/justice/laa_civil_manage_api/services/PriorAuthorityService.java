@@ -187,4 +187,12 @@ public class PriorAuthorityService {
         .updatedAt(response.updatedAt())
         .build();
   }
+
+  public void deleteDocument(UUID priorAuthorityId, UUID documentId) {
+    log.info("Deleting document: priorAuthorityId={}, documentId={}", priorAuthorityId, documentId);
+
+    accessDataStoreClient.deletePriorAuthorityDocument(priorAuthorityId, documentId);
+
+    log.info("Deleted document: priorAuthorityId={}, documentId={}", priorAuthorityId, documentId);
+  }
 }

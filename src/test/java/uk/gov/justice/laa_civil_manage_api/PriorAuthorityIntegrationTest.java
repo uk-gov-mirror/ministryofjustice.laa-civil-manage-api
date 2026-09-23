@@ -1,6 +1,7 @@
 package uk.gov.justice.laa_civil_manage_api;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.patch;
@@ -471,5 +472,58 @@ class PriorAuthorityIntegrationTest {
     assertEquals(HttpStatus.OK, updateResponse.getStatusCode());
     assertNotNull(updateResponse.getBody());
     assertEquals(documentId, updateResponse.getBody().documentId());
+  }
+
+  @Test
+  void deleteDocumentFlowsThroughToTheAccessDataStore() {
+    UUID priorAuthorityId = UUID.randomUUID();
+    UUID documentId = UUID.randomUUID();
+
+    accessDataStore.stubFor(
+        delete(
+                urlEqualTo(
+                    "/api/v0/prior-authorities/" + priorAuthorityId + "/document/" + documentId))
+            .withHeader("X-Service-Name", equalTo(SERVICE_NAME))
+            .withHeader("Authorization", equalTo("Bearer downstream-access-token"))
+            .withHeader("X-Authorization", equalTo("test-id-token"))
+            .willReturn(aResponse().withStatus(204)));
+
+    ResponseEntity<Void> response =
+        authenticatedClient
+            .delete()
+            .uri(
+                "http://localhost:" + port + "/prior-authorities/{id}/documents/{documentId}",
+                priorAuthorityId,
+                documentId)
+            .retrieve()
+            .toBodilessEntity();
+
+    assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+  }
+
+  @Test
+  void deleteDocumentReturns404WhenTheAccessDataStoreCannotFindTheDocument() {
+    UUID priorAuthorityId = UUID.randomUUID();
+    UUID documentId = UUID.randomUUID();
+
+    accessDataStore.stubFor(
+        delete(
+                urlEqualTo(
+                    "/api/v0/prior-authorities/" + priorAuthorityId + "/document/" + documentId))
+            .willReturn(aResponse().withStatus(404)));
+
+    HttpStatusCode status =
+        authenticatedClient
+            .delete()
+            .uri(
+                "http://localhost:" + port + "/prior-authorities/{id}/documents/{documentId}",
+                priorAuthorityId,
+                documentId)
+            .retrieve()
+            .onStatus(_ -> true, (_, _) -> {})
+            .toBodilessEntity()
+            .getStatusCode();
+
+    assertEquals(HttpStatus.NOT_FOUND, status);
   }
 }

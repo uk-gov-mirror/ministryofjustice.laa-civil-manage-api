@@ -21,6 +21,8 @@ public interface AccessDataStoreClient {
   DocumentTypeUpdateResponse updatePriorAuthorityDocumentType(
       UUID priorAuthorityId, UUID documentId, PriorAuthorityDocumentType documentType);
 
+  void deletePriorAuthorityDocument(UUID priorAuthorityId, UUID documentId);
+
   ApplicationSummaryResponse getApplications(
       int page,
       int pageSize,

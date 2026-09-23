@@ -321,4 +321,13 @@ class PriorAuthorityServiceTest {
         .updatePriorAuthorityDocumentType(
             PRIOR_AUTHORITY_ID, documentId, PriorAuthorityDocumentType.GATEWAY_EVIDENCE);
   }
+
+  @Test
+  void deleteDocumentForwardsToAccessDataStoreClient() {
+    UUID documentId = UUID.randomUUID();
+
+    service.deleteDocument(PRIOR_AUTHORITY_ID, documentId);
+
+    verify(client).deletePriorAuthorityDocument(PRIOR_AUTHORITY_ID, documentId);
+  }
 }

@@ -2,8 +2,10 @@ package uk.gov.justice.laa_civil_manage_api.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -322,5 +324,36 @@ class PriorAuthorityControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void deleteDocumentReturns204() throws Exception {
+    UUID documentId = UUID.randomUUID();
+
+    mockMvc
+        .perform(
+            delete(
+                "/prior-authorities/{priorAuthorityId}/documents/{documentId}",
+                PRIOR_AUTHORITY_ID,
+                documentId))
+        .andExpect(status().isNoContent());
+
+    verify(priorAuthorityService).deleteDocument(PRIOR_AUTHORITY_ID, documentId);
+  }
+
+  @Test
+  void deleteDocumentReturns404WhenNotFound() throws Exception {
+    UUID documentId = UUID.randomUUID();
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "document not found"))
+        .when(priorAuthorityService)
+        .deleteDocument(PRIOR_AUTHORITY_ID, documentId);
+
+    mockMvc
+        .perform(
+            delete(
+                "/prior-authorities/{priorAuthorityId}/documents/{documentId}",
+                PRIOR_AUTHORITY_ID,
+                documentId))
+        .andExpect(status().isNotFound());
   }
 }

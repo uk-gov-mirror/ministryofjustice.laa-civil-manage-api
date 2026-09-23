@@ -106,6 +106,19 @@ public class HttpAccessDataStoreClient implements AccessDataStoreClient {
   }
 
   @Override
+  public void deletePriorAuthorityDocument(UUID priorAuthorityId, UUID documentId) {
+    String baseUrl = properties.baseUrl();
+    adsRestClient
+        .delete()
+        .uri(
+            baseUrl + PRIOR_AUTHORITIES_PATH + "/{priorAuthorityId}/document/{documentId}",
+            priorAuthorityId,
+            documentId)
+        .retrieve()
+        .toBodilessEntity();
+  }
+
+  @Override
   public ApplicationSummaryResponse getApplications(
       int page,
       int pageSize,

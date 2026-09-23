@@ -185,5 +185,25 @@ public class PriorAuthorityController {
     return ResponseEntity.ok(response);
   }
 
+  @Operation(
+      summary = "Delete an uploaded document",
+      description = "Removes a supporting evidence document from a prior-authority draft.")
+  @ApiResponses({
+    @ApiResponse(
+        responseCode = "204",
+        description = "Document deleted from prior authority draft."),
+    @ApiResponse(
+        responseCode = "404",
+        description = "Prior authority or document not found.",
+        content = @Content)
+  })
+  @DeleteMapping("/{priorAuthorityId}/documents/{documentId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteDocument(
+      @Parameter(description = "ID of the prior authority.") @PathVariable UUID priorAuthorityId,
+      @Parameter(description = "ID of the document to delete.") @PathVariable UUID documentId) {
+    priorAuthorityService.deleteDocument(priorAuthorityId, documentId);
+  }
+
   public record PriorAuthorityIdResponse(UUID priorAuthorityId) {}
 }

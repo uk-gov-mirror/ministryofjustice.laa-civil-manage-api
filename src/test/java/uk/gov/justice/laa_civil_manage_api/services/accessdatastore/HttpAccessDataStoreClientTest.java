@@ -236,6 +236,28 @@ class HttpAccessDataStoreClientTest {
   }
 
   @Test
+  void deletePriorAuthorityDocumentDeletesFromAdsWithServiceNameHeader() {
+    UUID priorAuthorityId = UUID.randomUUID();
+    UUID documentId = UUID.randomUUID();
+
+    server
+        .expect(
+            requestTo(
+                BASE_URL
+                    + "/api/v0/prior-authorities/"
+                    + priorAuthorityId
+                    + "/document/"
+                    + documentId))
+        .andExpect(method(HttpMethod.DELETE))
+        .andExpect(header("X-Service-Name", SERVICE_NAME))
+        .andRespond(withStatus(HttpStatus.NO_CONTENT));
+
+    client.deletePriorAuthorityDocument(priorAuthorityId, documentId);
+
+    server.verify();
+  }
+
+  @Test
   void getApplicationsGetsFromAdsWithServiceNameHeader() {
     server
         .expect(
