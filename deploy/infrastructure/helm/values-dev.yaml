@@ -50,6 +50,8 @@ ingress:
     annotations:
       external-dns.alpha.kubernetes.io/set-identifier: "laa-civil-manage-api-laa-civil-manage-api-dev-green"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
+      # Prevent NGINX from masking 5xx JSON responses (e.g., actuator/health) with default HTML pages.
+      nginx.ingress.kubernetes.io/custom-http-errors: ""
       nginx.ingress.kubernetes.io/enable-modsecurity: "true"
       nginx.ingress.kubernetes.io/enable-owasp-core-rules: "true"
       nginx.ingress.kubernetes.io/modsecurity-transaction-id: "$request_id"

@@ -98,20 +98,14 @@ CORS_ALLOWED_ORIGINS=https://laa-civil-manage-dev.cloud-platform.service.justice
 
 ## Health checks and system alerts
 
-We use two different health checks so the application stays online for users even when an external API we depend on
-goes down.
+- **`/actuator/health`**: Checks this app plus every downstream dependency (Access Data Store, Legal Framework API,
+  Provider Details API). Returns `503`/`DOWN` if any of them fail — this is what we alert on.
+- **`/actuator/health/liveness`, `/actuator/health/readiness`**: Kubernetes probes. These only check the app itself,
+  ignoring downstream dependencies, so Kubernetes doesn't restart or evict pods over an outage it can't fix.
 
-- **Alerting health (`/actuator/health`)**: Checks this app *and* all external services we depend on (the Provider
-  Details API and Legal Framework API). If a downstream service breaks, this endpoint returns `503 Service
-  Unavailable` and reports `DOWN` — this is what our monitoring tools alert on.
-- **Kubernetes health (`/actuator/health/liveness`, `/actuator/health/readiness`)**: Isolated groups configured in
-  `application.yaml` that strictly check whether this app itself is running and accepting traffic, ignoring the state
-  of external services.
-
-**Why do we do this?** If an external API breaks, we want an alert — but we don't want Kubernetes to panic and
-forcibly restart our app over someone else's outage. By separating these checks and pointing the Kubernetes
-deployment probes at the isolated liveness/readiness paths, our app stays online and continues to work for any user
-journeys that don't rely on the broken API.
+Note that most endpoints (all `/prior-authorities` and `/applications` routes) depend on the Access Data Store, so an
+ADS outage still breaks most of the API even though the pod stays up — only `/expertTypes` is unaffected. Kubernetes
+staying calm doesn't mean the app is fully functional; it just avoids making a bad situation worse.
 
 See `HealthEndpointIntegrationTest` for tests that document this behaviour end-to-end.
 
