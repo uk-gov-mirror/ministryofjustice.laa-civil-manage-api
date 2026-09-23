@@ -71,8 +71,10 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.2")
-        mavenBom("tools.jackson:jackson-bom:3.2.2")
+        // Fixes SNYK-JAVA-COMFASTERXMLJACKSONCORE-20059179 / -20059683
+        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.3")
+        // Fixes SNYK-JAVA-TOOLSJACKSONCORE-20059180 / -20059682
+        mavenBom("tools.jackson:jackson-bom:3.2.3")
     }
 }
 
